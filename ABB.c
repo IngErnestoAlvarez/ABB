@@ -1,12 +1,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include "ABB.h"
+typedef struct nodo_ABB nodo_ABB_t;
 
-typedef struct abb abb_t;
+struct abb{
+    size_t cant;
+    nodo_ABB_t* raiz;
+    abb_comparar_clave_t cmp;
+    abb_destruir_dato_t dest;
+};
 
-
-typedef int (*abb_comparar_clave_t) (const char *, const char *);
-
-typedef void (*abb_destruir_dato_t) (void *);
+struct nodo_ABB
+{
+    nodo_ABB_t* izq;
+    nodo_ABB_t* der;
+    void* dato;
+    char* clave;
+};
 
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
