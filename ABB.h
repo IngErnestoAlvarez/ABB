@@ -5,6 +5,7 @@
 
 typedef struct abb abb_t;
 
+typedef struct abb_iter abb_iter_t;
 
 typedef int (*abb_comparar_clave_t) (const char *, const char *);
 
@@ -45,5 +46,42 @@ size_t abb_cantidad(abb_t *arbol);
  *      las libera utilizando la funcion con la cual se creo el arbol.
  */
 void abb_destruir(abb_t *arbol);
+
+/**********************************************/
+/*ITERADOR INTERNO */
+/*********************************************/
+
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
+
+/**********************************************/
+/*ITERADOR EXTERNO */
+/*********************************************/
+/*
+ *Pre: El arbol existe.
+ *Post: Crea un iterador in order del arbol
+ */
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol);
+/*
+ *Pre: El iterador fue creado.   
+ *Post: Avanza el iterador en sentido in order, devuelve falso si esta al final o hubo un error.
+ *      Devuelve verdadero si pudo avanzar.
+ */
+bool abb_iter_in_avanzar(abb_iter_t *iter);
+/*
+ *Pre:El iterador fue creado.
+ *Post: Devuelve la clave sobre la cual el iterador esta parado.
+ */
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter);
+/*
+ *Pre: El iterador fue creado.
+ *Post: Devuelve verdadero en caso de que el iterador este al final
+ *      del recorrido in order. De caso contrario devuelve false.
+ */
+bool abb_iter_in_al_final(const abb_iter_t *iter);
+/*
+ *Pre: El iterador fue creado.
+ *Post: Libera la memoria utilizada por el iterador.
+ */
+void abb_iter_in_destruir(abb_iter_t* iter);
 
 #endif // ABB_H

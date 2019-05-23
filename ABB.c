@@ -2,8 +2,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include "ABB.h"
-
+#include "pila.h"
 typedef struct nodo_ABB nodo_ABB_t;
+
+struct abb_iter{
+    pila_t* pila;
+    abb_t* arbol;
+}
 
 struct abb{
     size_t cant;
@@ -60,6 +65,7 @@ nodo_ABB_t* abb_buscar_clave(abb_t* abb, char* clave, nodo_ABB_t** padre){
 }
 
 void* abb_borrar_cero(abb_t* arbol, nodo_ABB_t* nodo, nodo_ABB_t* padre){
+    arbol->cant--;
     if(nodo == arbol->raiz){
         arbol->raiz = NULL;
         return nodo_destruir(nodo);
@@ -73,6 +79,7 @@ void* abb_borrar_cero(abb_t* arbol, nodo_ABB_t* nodo, nodo_ABB_t* padre){
 }
 
 void* abb_borrar_uno(abb_t* arbol, nodo_ABB_t* nodo, nodo_ABB_t* padre){
+    arbol->cant--;
     if(nodo == arbol->raiz){
         if(nodo->izq){
             arbol->raiz = nodo->izq;
@@ -204,4 +211,54 @@ bool abb_in_order_aux(nodo_ABB_t* actual, bool visitar(const char *, void *, voi
     if(!visitar(actual->clave, actual->dato, extra)) return false;
     if(!abb_in_order_aux(actual->der, visitar, extra)) return false;
     return true;
+}
+
+/**********************************************/
+/*ITERADOR EXTERNO*/
+/*********************************************/
+
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
+    abb_iter_t* iterador = malloc(sizeof(abb_iter_t));
+    if(!iterador) return NULL;
+    iterador->pila = pila_crear();
+    if(!iterador->pila){
+        free(iterador);
+        return NULL;
+    }
+    if(!apilar_izq(iterador->pila, arbol->raiz)){
+        pila_destruir(iterador->pila);
+        free(iterador);
+        return NULL;
+    }
+    iterador->arbol = arbol;
+    return iterador;
+}
+bool apilar_izq(pila_t* pila, nodo_ABB_t* raiz){
+    nodo_ABB_t* actual = raiz;
+    while(actual){
+        if(!pila_apilar(iterador->pila, actual)) return false;
+        actual = actual->izq;
+    }
+    return true;
+}
+   
+bool abb_iter_in_avanzar(abb_iter_t *iter){
+    if(abb_iter_in_al_final(iter)) return false;
+    nodo_ABB_t* actual = pila_desapilar(iter->pila);
+    if(actual->der) if(!pila_apilar(iter->pila,actual->der)) return false;
+    if(!apilar_izq(iter->pila, actual->der)) return false;
+    return true;
+}
+
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter){
+    return (((nodo_ABB_t)pila_ver_tope(iter->pila))->clave);    
+}
+
+bool abb_iter_in_al_final(const abb_iter_t *iter){
+    return pila_esta_vacia(iter->pila);
+}
+
+void abb_iter_in_destruir(abb_iter_t* iter){
+   pila_destruir(iter->pila);
+   free(iter);
 }
