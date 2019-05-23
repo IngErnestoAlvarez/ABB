@@ -188,3 +188,20 @@ void abb_destruir(abb_t *arbol){
     abb_destruir_aux(arbol->raiz, arbol);
     free(arbol);
 }
+
+/**********************************************/
+/*ITERADOR INTERNO */
+/*********************************************/
+
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
+    if(!abb_cantidad(arbol)) return;
+    abb_in_order_aux(arbol->raiz, visitar, extra);
+}
+
+bool abb_in_order_aux(nodo_ABB_t* actual, bool visitar(const char *, void *, void *), void *extra){
+    if(!actual) return true;
+    if(!abb_in_order_aux(actual->izq, visitar, extra)) return false;
+    if(!visitar(actual->clave, actual->dato, extra)) return false;
+    if(!abb_in_order_aux(actual->der, visitar, extra)) return false;
+    return true;
+}
