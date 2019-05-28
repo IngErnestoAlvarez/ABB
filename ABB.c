@@ -152,6 +152,7 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
     nodo_ABB_t* padre;
     nodo = abb_buscar_clave(arbol, clave, &padre);
     if(nodo){
+        arbol->dest(nodo->dato);
         nodo->dato = dato;
         return nodo;
     }
