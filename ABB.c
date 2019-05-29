@@ -247,7 +247,9 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
 bool abb_iter_in_avanzar(abb_iter_t *iter){
     if(abb_iter_in_al_final(iter)) return false;
     nodo_ABB_t* actual = pila_desapilar(iter->pila);
-    if(actual->der) if(!pila_apilar(iter->pila,actual->der)) return false;
+    if(actual->der){
+        if(!pila_apilar(iter->pila,actual->der)) return false;
+    }
     if(!apilar_izq(iter->pila, actual->der)) return false;
     return true;
 }
