@@ -1,8 +1,13 @@
 #include "testing.h"
 #include <string.h>
 #include "ABB.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#define TAM_MIN 5000
 
 void prueba_crear_abb_vacio(){
+    printf("\n\n\nABB VACIO\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     print_test("Prueba abb crear abb vacio", abb);
@@ -15,6 +20,7 @@ void prueba_crear_abb_vacio(){
 }
 
 void prueba_iterar_abb_vacio(){
+    printf("\n\n\nITERADOR VACIO\n");
     abb_t* abb = abb_crear(strcmp, NULL);
     abb_iter_t* iter = abb_iter_in_crear(abb);
 
@@ -28,6 +34,7 @@ void prueba_iterar_abb_vacio(){
 }
 
 void prueba_abb_insertar(){
+    printf("\n\n\nABB INSERTAR\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char *clave1 = "1";
@@ -65,6 +72,7 @@ void prueba_abb_insertar(){
 }
 
 void prueba_abb_reemplazar(){
+    printf("\n\n\nABB REEMPLAZAR\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char *clave1 = "1";
@@ -94,6 +102,7 @@ void prueba_abb_reemplazar(){
 }
 
 void prueba_abb_reemplazar_con_destruir(){
+    printf("\n\n\nABB REEMPLAZAR CON DESTRUIR\n");
     abb_t* abb = abb_crear(strcmp,free);
 
     char *clave1 = "perro", *valor1a, *valor1b;
@@ -124,6 +133,7 @@ void prueba_abb_reemplazar_con_destruir(){
 }
 
 void prueba_abb_borrar(){
+    printf("\n\n\nABB BORRAR\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char *clave1 = "1";
@@ -166,6 +176,7 @@ void prueba_abb_borrar(){
 }
 
 void prueba_abb_clave_vacia(){
+    printf("\n\n\nABB CLAVE VACIA\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char *clave = "", *valor = "";
@@ -182,6 +193,7 @@ void prueba_abb_clave_vacia(){
 }
 
 void prueba_abb_valor_null(){
+    printf("\n\n\nABB VALOR NULL\n");
     abb_t* abb = abb_crear(strcmp,NULL);
 
     char *clave = "", *valor = NULL;
@@ -196,6 +208,68 @@ void prueba_abb_valor_null(){
 
     abb_destruir(abb);
 }
-void pruebas_abb_alumno(){
 
+void prueba_abb_volumen(){
+    printf("\n\n\n\n\n\nABB VOLUMEN\n\n");
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    const size_t largo_clave = 10;
+
+    char (*claves)[largo_clave] = malloc(TAM_MIN * largo_clave);
+    
+    size_t* valores[TAM_MIN];
+
+    bool ok = true;
+    for(size_t i = 0; i<TAM_MIN; i++){
+        valores[i] = malloc(sizeof(int));
+        sprintf(claves[i], "%li", (size_t)valores[i]);
+        ok = abb_guardar(abb, claves[i], valores[i]);
+        if(!ok) break;
+    }
+
+    print_test("Prueba abb almacenar muchos elementos", ok);
+    print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == TAM_MIN);
+
+    for(size_t j = 0; j < TAM_MIN; j++){
+        ok = abb_pertenece(abb, claves[j]);
+        ok = (abb_obtener(abb, claves[j])==valores[j]);
+        if(!ok) break;
+    }
+
+    print_test("Prueba abb pertenece y obtener muchos elementos", ok);
+    print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == TAM_MIN);
+
+    for(size_t k = 0; k < TAM_MIN; k++){
+        ok = (abb_borrar(abb, claves[k])==valores[k]);
+        if(!ok) break;
+    }
+
+    print_test("Prueba abb borrar muchos elementos", ok);
+    print_test("Prueba abb la cantidad de elementos es 0", abb_cantidad(abb) == 0);
+
+    abb_destruir(abb);
+
+    abb = abb_crear(strcmp, free);
+    
+    for(size_t i = 0; i<TAM_MIN; i++){
+        ok = abb_guardar(abb, claves[i], valores[i]);
+        if(!ok) break;
+    }
+    free(claves);
+    abb_destruir(abb);
+}
+
+void prueba_abb_iterar(){
+    abb_t* abb = abb_crear(strcmp, NULL);
+}
+void pruebas_abb_alumno(){
+    prueba_crear_abb_vacio();
+    prueba_iterar_abb_vacio();
+    prueba_abb_insertar();
+    prueba_abb_reemplazar();
+    prueba_abb_reemplazar_con_destruir();
+    prueba_abb_borrar();
+    prueba_abb_clave_vacia();
+    prueba_abb_valor_null();
+    prueba_abb_volumen();
 }
