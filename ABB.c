@@ -28,13 +28,18 @@ struct nodo_ABB
 /**********************************************/
 /* FUNCIONES NODOS */
 /*********************************************/
+char* strdupp(const char* clave){
+	char* string = malloc(sizeof(char)*(strlen(clave)+1));
+	strcpy(string, clave);
+	return string;
+}
 nodo_ABB_t* nodo_crear(void* dato,const char* clave){
     nodo_ABB_t* nodo = malloc(sizeof(nodo_ABB_t));
     if(!nodo) return NULL;
     nodo->izq = NULL;
     nodo->der = NULL;
     nodo->dato = dato;
-    nodo->clave = strdup(clave);
+    nodo->clave = strdupp(clave);
     if(!nodo->clave) {
         free(nodo);
         return NULL;
@@ -104,16 +109,22 @@ void* abb_borrar_uno(abb_t* arbol, nodo_ABB_t* nodo, nodo_ABB_t* padre){
     return nodo_destruir(nodo);
 }
 
-nodo_ABB_t* buscar_reemplazo(nodo_ABB_t* nodo){
-    if(!nodo->izq) return nodo;
-    return buscar_reemplazo(nodo->izq);
+nodo_ABB_t* buscar_reemplazo(nodo_ABB_t* nodo, nodo_ABB_t** padre){
+	if(!nodo->izq){
+		return nodo;
+	}
+	*padre = nodo;
+    return buscar_reemplazo(nodo->izq, padre);
 }
 
 void* abb_borrar_dos(abb_t* arbol, nodo_ABB_t* nodo){
-    nodo_ABB_t* reemplazo = buscar_reemplazo(nodo->der);
+	nodo_ABB_t* padre = nodo;
+    nodo_ABB_t* reemplazo = buscar_reemplazo(nodo->der, &padre);
     void* dato_aux = nodo->dato;
-    char* clave = strdup(reemplazo->clave);
-    nodo->dato = abb_borrar(arbol, reemplazo->clave);
+    char* clave = strdupp(reemplazo->clave);
+    //nodo->dato = abb_borrar(arbol, reemplazo->clave);
+	if((!reemplazo->der)&&(!reemplazo->izq)) nodo->dato = abb_borrar_cero(arbol, reemplazo, padre);
+    else  nodo->dato = abb_borrar_uno(arbol,reemplazo, padre);
     free(nodo->clave);
     nodo->clave = clave;
     return dato_aux;
@@ -247,9 +258,6 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
 bool abb_iter_in_avanzar(abb_iter_t *iter){
     if(abb_iter_in_al_final(iter)) return false;
     nodo_ABB_t* actual = pila_desapilar(iter->pila);
-    if(actual->der){
-        if(!pila_apilar(iter->pila,actual->der)) return false;
-    }
     if(!apilar_izq(iter->pila, actual->der)) return false;
     return true;
 }

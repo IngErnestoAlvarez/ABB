@@ -222,12 +222,11 @@ void prueba_abb_volumen(){
 
     bool ok = true;
     for(size_t i = 0; i<TAM_MIN; i++){
-        valores[i] = malloc(sizeof(int));
+        valores[i] = malloc(sizeof(size_t));
         sprintf(claves[i], "%li", (size_t)valores[i]);
         ok = abb_guardar(abb, claves[i], valores[i]);
         if(!ok) break;
     }
-
     print_test("Prueba abb almacenar muchos elementos", ok);
     print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == TAM_MIN);
 
@@ -270,6 +269,7 @@ ssize_t buscar(const char* clave, char* claves[], size_t largo)
 
 void prueba_abb_iterar()
 {
+    printf("\n\n\n\n\n\nABB ITERAR\n\n");
     abb_t* abb = abb_crear(strcmp, NULL);
 
     char *claves[] = {"perro", "gato", "vaca"};
@@ -309,7 +309,6 @@ void prueba_abb_iterar()
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba abb iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba abb iterador ver actual, no es el mismo puntero", clave != claves[indice]);
-    //abb_iter_in_avanzar(iter);
     abb_iter_in_avanzar(iter);
     print_test("Prueba abb iterador esta al final, es true", abb_iter_in_al_final(iter));
 
@@ -321,6 +320,68 @@ void prueba_abb_iterar()
     abb_iter_in_destruir(iter);
     abb_destruir(abb);
 }
+void prueba_abb_iterar_volumen(){
+    printf("\n\n\n\n\n\nABB ITERAR VOLUMEN\n\n");
+    abb_t* abb = abb_crear(strcmp,free);
+
+    const size_t largo_clave = 10;
+
+    char (*claves)[largo_clave] = malloc(TAM_MIN * largo_clave);
+    
+    size_t* valores[TAM_MIN];
+	
+	bool ok = true;
+    for(size_t i = 0; i<TAM_MIN; i++){
+        valores[i] = malloc(sizeof(size_t));
+        sprintf(claves[i], "%li", (size_t)valores[i]);
+		abb_guardar(abb, claves[i], valores[i]);
+    }
+
+    abb_iter_t* iter = abb_iter_in_crear(abb);
+	print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
+
+    ok = true;
+    unsigned i;
+    const char *clave;
+    size_t *valor;
+
+
+    for (i = 0; i < TAM_MIN; i++) {
+        if ( abb_iter_in_al_final(iter) ) {
+            ok = false;
+            break;
+        }
+        clave = abb_iter_in_ver_actual(iter);
+        if ( clave == NULL ) {
+            ok = false;
+            break;
+        }
+        valor = abb_obtener(abb, clave);
+        if ( valor == NULL ) {
+            ok = false;
+            break;
+        }
+        (*valor) = TAM_MIN;
+        abb_iter_in_avanzar(iter);
+    }
+    print_test("Prueba abb iteración en volumen", ok);
+    print_test("Prueba abb iteración en volumen, recorrio todo el largo", i == TAM_MIN);
+    print_test("Prueba abb iterador esta al final, es true", abb_iter_in_al_final(iter));
+
+    ok = true;
+    for (i = 0; i < TAM_MIN; i++) {
+        if ( *valores[i] != TAM_MIN ) {
+            ok = false;
+            break;
+        }
+    }
+    print_test("Prueba abb iteración en volumen, se cambiaron todo los elementos", ok);
+
+    free(claves);
+    abb_iter_in_destruir(iter);
+ 
+    abb_destruir(abb);
+}
 void pruebas_abb_alumno(){
     prueba_crear_abb_vacio();
     prueba_iterar_abb_vacio();
@@ -330,6 +391,7 @@ void pruebas_abb_alumno(){
     prueba_abb_borrar();
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
-    //prueba_abb_volumen();
+	prueba_abb_volumen();
     prueba_abb_iterar();
+	prueba_abb_iterar_volumen();
 }
