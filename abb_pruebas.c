@@ -6,7 +6,11 @@
 #include <unistd.h>
 
 #define TAM_MIN 5000
-
+#define TAM_VEC 8996 //resta de max-min
+#define TAM_MIN_PRUEBA 1000
+#define TAM_MAX_PRUEBA 9996 //Par y multiplo de 3
+typedef char claves_t[4]; //largo de un numero de 4 digitos ej 1000
+ 
 void prueba_crear_abb_vacio(){
     printf("\n\n\nABB VACIO\n");
     abb_t* abb = abb_crear(strcmp, NULL);
@@ -210,6 +214,69 @@ void prueba_abb_valor_null(){
     abb_destruir(abb);
 }
 
+
+
+void prueba_abb_volumen(){
+    printf("\n\n\n\n\n\nABB VOLUMEN\n\n");
+
+    abb_t* abb=abb_crear(strcmp,NULL);
+    claves_t claves[TAM_VEC]; 
+    size_t valores[TAM_VEC];
+    size_t z=0;
+    
+    for(size_t x = TAM_MIN_PRUEBA ;x < TAM_MAX_PRUEBA; x++) {
+        sprintf(claves[x],"%ld",x);
+        valores[z]=x;
+        z++;
+    }
+    size_t i=(TAM_VEC/2)+1;
+    size_t j=(TAM_VEC/2)-1;    
+    bool ok=true;
+
+    if(!abb_guardar(abb,claves[TAM_VEC/2],claves[TAM_VEC/2])) ok=false;
+
+    while( (i < TAM_VEC)/* && (j > -1)*/){
+        if(!abb_guardar(abb,claves[i],&valores[i])) ok=false;
+        if(!abb_guardar(abb,claves[j],&valores[j])) ok=false;
+        if(!abb_guardar(abb,claves[i+2],&valores[i+2])) ok=false;
+        if(!abb_guardar(abb,claves[i+1],&valores[i+1])) ok=false;
+        if(!abb_guardar(abb,claves[j-1],&valores[j-1])) ok=false;
+        if(!abb_guardar(abb,claves[j-2],&valores[j-2])) ok=false;
+        j = j-3;
+        i = i+3;
+    }
+    /*
+    for(i=i;i<TAM_VEC;i++){
+        if(!abb_guardar(abb,claves[i],&claves[i])) ok=false;
+        if(!abb_guardar(abb,claves[j],&claves[j])) ok=false;
+        j--;
+        printf("\n%ld,%ld", i, j);
+    }*/
+
+    print_test("Prueba abb almacenar muchos elementos", ok);
+    printf("\nCantidad elementos arbol(deberia ser 8999):%ld,i: %ld,j: %ld\n", abb_cantidad(abb),i,j);
+    print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == TAM_VEC);
+
+    for (size_t k = 0; k < TAM_VEC; ++k){
+        ok = abb_pertenece(abb,claves[k]);
+        ok = (abb_obtener(abb,claves[k])== &valores[k]);
+    }
+
+    print_test("Prueba abb pertenece y obtener muchos elementos", ok);
+    print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == TAM_VEC);
+
+    for(size_t y = 0; y < TAM_VEC; y++){
+        ok = (abb_borrar(abb, claves[y])== &valores[y]);
+    }
+
+    print_test("Prueba abb borrar muchos elementos", ok);
+    print_test("Prueba abb la cantidad de elementos es 0", abb_cantidad(abb) == 0);
+
+    abb_destruir(abb);
+
+}
+/*
+
 void prueba_abb_volumen(){
     printf("\n\n\n\n\n\nABB VOLUMEN\n\n");
     abb_t* abb = abb_crear(strcmp,NULL);
@@ -258,7 +325,7 @@ void prueba_abb_volumen(){
     free(claves);
     abb_destruir(abb);
 }
-
+*/
 ssize_t buscar(const char* clave, char* claves[], size_t largo)
 {
     for (size_t i = 0; i < largo; i++) {
@@ -393,5 +460,5 @@ void pruebas_abb_alumno(){
     prueba_abb_valor_null();
 	prueba_abb_volumen();
     prueba_abb_iterar();
-	prueba_abb_iterar_volumen();
+	//prueba_abb_iterar_volumen();
 }
